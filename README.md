@@ -1,4 +1,4 @@
-# Content Creator App
+# ConCreat App
 
 A modern web application for creating and managing multimedia content, featuring AI-powered text-to-speech capabilities using Chatterbox-Turbo.
 
@@ -23,7 +23,7 @@ A modern web application for creating and managing multimedia content, featuring
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd content-creator-app
+   cd ConCreat
    ```
 
 2. **Install dependencies:**
@@ -69,7 +69,7 @@ If you prefer to set up manually:
 ## Project Structure
 
 ```
-content-creator-app/
+ConCreat/
 ├── src/
 │   └── app/
 │       ├── api/

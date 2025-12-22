@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "bobloblob",
-  description: "Generate images using ComfyUI workflow and chat with Gemma AI",
+  title: "ConCreat",
+  description: "A modern web application for creating and managing multimedia content with AI-powered text-to-speech capabilities",
   icons: {
     icon: "/favicon.ico",
   },
