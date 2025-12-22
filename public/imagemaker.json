@@ -1,0 +1,192 @@
+{
+  "3": {
+    "inputs": {
+      "seed": 19833818009835,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "83",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "38",
+        0
+      ],
+      "latent_image": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "6": {
+    "inputs": {
+      "text": "Existence as paradigm anticipating pressures, exemplary independence, cyberpunk secession, rapid reactivity embracing freedom, exemplification from constraint.\n",
+      "clip": [
+        "83",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "Zimage_Txt2Image/ComfyUI_",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "11": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "ModelSamplingAuraFlow"
+    }
+  },
+  "13": {
+    "inputs": {
+      "width": [
+        "29",
+        0
+      ],
+      "height": [
+        "29",
+        1
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "EmptySD3LatentImage"
+    }
+  },
+  "17": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "28": {
+    "inputs": {
+      "sage_attention": "disabled",
+      "allow_compile": false,
+      "model": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "29": {
+    "inputs": {
+      "megapixel": "1.0",
+      "aspect_ratio": "3:4 (Golden Ratio)",
+      "divisible_by": "64",
+      "custom_ratio": false,
+      "custom_aspect_ratio": "1:1"
+    },
+    "class_type": "FluxResolutionNode",
+    "_meta": {
+      "title": "Flux Resolution Calc"
+    }
+  },
+  "36": {
+    "inputs": {
+      "clip_name": "Qwen3-4B-UD-Q6_K_XL.gguf",
+      "type": "lumina2"
+    },
+    "class_type": "CLIPLoaderGGUF",
+    "_meta": {
+      "title": "CLIPLoader (GGUF)"
+    }
+  },
+  "38": {
+    "inputs": {
+      "text": "lowres, text, error, cropped, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, username, watermark, signature",
+      "clip": [
+        "83",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "83": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "11",
+        0
+      ],
+      "clip": [
+        "36",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)"
+    }
+  },
+  "87": {
+    "inputs": {
+      "unet_name": "z_image_turbo-Q8_0.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "Unet Loader (GGUF)"
+    }
+  }
+}

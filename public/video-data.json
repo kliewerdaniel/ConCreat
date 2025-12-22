@@ -1,0 +1,79 @@
+[
+  {
+    "filename": "generated_1766417333508_vid_00007.mp4",
+    "localPath": "/videos/generated_1766417333508_vid_00007.mp4",
+    "localFilename": "generated_1766417333508_vid_00007.mp4",
+    "prompt": "A fireball comes out of the cat's mouth",
+    "negativePrompt": "",
+    "inputImage": "blob:http://localhost:3000/87585170-2100-43d9-8592-3eb6dae31bf8",
+    "isFavorite": false,
+    "createdAt": "2025-12-22T15:28:53.512Z",
+    "prompt_id": "96a9fe1b-b494-40f2-ad03-3fe390c10239"
+  },
+  {
+    "filename": "generated_1766416990141_vid_00006.mp4",
+    "localPath": "/videos/generated_1766416990141_vid_00006.mp4",
+    "localFilename": "generated_1766416990141_vid_00006.mp4",
+    "prompt": "The man speaks.",
+    "negativePrompt": "",
+    "inputImage": "blob:http://localhost:3000/ff96a739-c344-49a2-b72b-a7d7fd522772",
+    "isFavorite": false,
+    "createdAt": "2025-12-22T15:23:10.145Z",
+    "prompt_id": "8063224f-614e-4936-818b-671f7d2df306"
+  },
+  {
+    "filename": "generated_1766416674817_vid_00005.mp4",
+    "localPath": "/videos/generated_1766416674817_vid_00005.mp4",
+    "localFilename": "generated_1766416674817_vid_00005.mp4",
+    "prompt": "Donald Trump speaks while doing something funny as the camera zooms out.",
+    "negativePrompt": "",
+    "inputImage": "/images/generated_1766416300625_generated__00059_.png",
+    "isFavorite": false,
+    "createdAt": "2025-12-22T15:17:54.821Z",
+    "prompt_id": "21d816d2-2334-413a-b94e-a8600728827f"
+  },
+  {
+    "filename": "generated_1766414652549_vid_00004.mp4",
+    "localPath": "/videos/generated_1766414652549_vid_00004.mp4",
+    "localFilename": "generated_1766414652549_vid_00004.mp4",
+    "prompt": "Render in ultra‑realistic 8K, cinematic lighting, shallow depth of field, subtle film grain, and a smooth 24 fps transition that loops seamlessly.",
+    "negativePrompt": "",
+    "inputImage": "/images/generated_1766413739614_generated__00058_.png",
+    "isFavorite": false,
+    "createdAt": "2025-12-22T14:44:12.553Z",
+    "prompt_id": "e06f9c44-b678-4ad1-ab8d-1b316977c75d"
+  },
+  {
+    "filename": "generated_1766360875150_vid_00003.mp4",
+    "localPath": "/videos/generated_1766360875150_vid_00003.mp4",
+    "localFilename": "generated_1766360875150_vid_00003.mp4",
+    "prompt": ". Style & Aesthetic:**\n- Hyper-stylized, whimsical cartoon with a **sentient 3D-printed pineapple** CEO of a floating paradise.\n- Warm retro-futurism (1992 *Pixar short* vibes) with **vibrant, slightly chaotic modern digital art**.\n- **Soft pastel lighting + neon blue shadows**, ultra-detailed textures, and dreamy surrealism.\n- **Upside-down palm trees** with \"anti-gravity startups\" and a **handwritten sign**: *\"OFFLIMITS: NO TARIFFS ON JOY\"*.\n- **Tiny business attire**: crooked coconut-husk suit, gold-chain neckpiece, and seashell monocle.\n- **Clipboard with Pinyin + abstract hieroglyphs** and an **overpriced ‘COFFEE (INSULIN-FREE)’ espresso cup**.\n\n**2. Motion & Composition:**\n- **Floating island dynamics**: gentle buoyant movement (like a buoyant jellyfish or a levitating soap bubble).\n- **Subtle character expressions**: mischievous, smug, or slightly rebellious demeanor (e.g., tilted head, squinting monocle).\n- **Camera angles**: dynamic, low-angle shots (like filming a tiny CEO) or overhead views of the upside-down island.\n- **Color grading**: golden hour glow, neon accents, and soft neon reflections.\n\n**3. Technical Details (for animation stability):**\n- **Low-poly 3D pineapple** with **high-poly textures** (for realism in cartoon style).\n- **Soft motion blur** in neon accents and palm leaves.\n- **No distortion**: ensure the upside-down trees look intentional but not warped.\n- **Soundtrack**: synthwave meets tropical beats (e.g., *Daft Punk’s \"Get Lucky\"* meets *The Beach Boys*).",
+    "negativePrompt": "Overly realistic/photorealistic** textures.\n- **Dark, moody, or gritty** lighting (keep it dreamy and warm).\n- **Cartoonish flat colors** (avoid pixelated or overly simplified shapes).\n- **Distorted physics**: no realistic gravity, floating objects should look exaggeratedly buoyant.\n- **Cluttered scenes**: excessive elements (e.g., too many floating debris, messy island clutter).\n- **Unwhimsical expressions**: avoid creepy, sad, or overly serious character faces.\n- **Non-retro-futuristic elements**: no VHS grain, no 8-bit pixelation (unless intentional).\n- **Ambiguous text**: ensure Pinyin/hieroglyphs are clearly legible and stylized.\n- **Background noise**: no irrelevant distractions (e.g., floating junk, chaotic crowds).",
+    "inputImage": "/images/generated_1766360578102_generated__00057_.png",
+    "isFavorite": false,
+    "createdAt": "2025-12-21T23:47:55.153Z",
+    "prompt_id": "e9c86b4e-6f62-4016-b361-99ec21a2edd9"
+  },
+  {
+    "filename": "generated_1766359304060_vid_00002.mp4",
+    "localPath": "/videos/generated_1766359304060_vid_00002.mp4",
+    "localFilename": "generated_1766359304060_vid_00002.mp4",
+    "prompt": "A black and white cat appears",
+    "negativePrompt": "",
+    "inputImage": "blob:http://localhost:3000/20bf34e9-9d1d-4ae8-b241-8c7049054cf1",
+    "isFavorite": false,
+    "createdAt": "2025-12-21T23:21:44.063Z",
+    "prompt_id": "fffa2ef2-286b-4af9-9db2-f700aee5b5ca"
+  },
+  {
+    "filename": "generated_1766358437922_vid_00001.mp4",
+    "localPath": "/videos/generated_1766358437922_vid_00001.mp4",
+    "localFilename": "generated_1766358437922_vid_00001.mp4",
+    "prompt": "a bear appears",
+    "negativePrompt": "low resolution, blurry, jittery motion, excessive motion blur, distorted anatomy, extra limbs, malformed paws, broken whiskers, unnatural eye placement, bad fur texture, cartoon style, anime style, exaggerated facial expressions, human hands, humans present, text artifacts, unreadable screen, gibberish symbols, watermark, logo, UI overlays, flickering, frame tearing, camera shake, overexposed lighting, flat lighting, washed out colors, static image, no motion, abrupt cuts, glitch artifacts, horror tone, aggressive behavior, violence",
+    "inputImage": "blob:http://localhost:3000/4c0848e2-7dee-4a43-8174-bf82112a613d",
+    "isFavorite": false,
+    "createdAt": "2025-12-21T23:07:17.925Z",
+    "prompt_id": "e1743114-bb25-488a-8f29-700609f270a5"
+  }
+]

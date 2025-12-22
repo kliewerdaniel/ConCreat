@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f5f5;
+  --foreground: #404040;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #2a2a2a;
+    --foreground: #d4d4d4;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Trippy geometric background animation */
+.trippy-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.trippy-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #0f0f23 25%, transparent 25%),
+              linear-gradient(-45deg, #0f0f23 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #0f0f23 75%),
+              linear-gradient(-45deg, transparent 75%, #0f0f23 75%);
+  background-size: 30px 30px;
+  background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+  animation: checkerboard 8s linear infinite;
+  opacity: 0.03;
+}
+
+.trippy-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.08) 0%, transparent 50%);
+  animation: colorShift 15s ease-in-out infinite alternate;
+}
+
+.trippy-bg .geometric-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.trippy-bg .geometric-layer:nth-child(1) {
+  animation: rotateShapes 40s linear infinite;
+}
+
+.trippy-bg .geometric-layer:nth-child(2) {
+  animation: rotateShapes 35s linear infinite reverse;
+}
+
+.trippy-bg .geometric-layer:nth-child(3) {
+  animation: rotateShapes 45s linear infinite;
+}
+
+.geometric-shape {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(138, 43, 226, 0.04), rgba(30, 144, 255, 0.04));
+  animation: morphShape 12s ease-in-out infinite;
+}
+
+.geometric-shape:nth-child(odd) {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  background: linear-gradient(45deg, rgba(255, 20, 147, 0.04), rgba(138, 43, 226, 0.04));
+}
+
+.geometric-shape:nth-child(even) {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: linear-gradient(45deg, rgba(50, 205, 50, 0.04), rgba(255, 215, 0, 0.04));
+}
+
+.geometric-shape:nth-child(3n) {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  background: linear-gradient(45deg, rgba(255, 69, 0, 0.04), rgba(255, 20, 147, 0.04));
+}
+
+.geometric-shape:nth-child(4n) {
+  clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+  background: linear-gradient(45deg, rgba(75, 0, 130, 0.04), rgba(238, 130, 238, 0.04));
+}
+
+.geometric-shape:nth-child(5n) {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  background: linear-gradient(45deg, rgba(0, 191, 255, 0.04), rgba(135, 206, 235, 0.04));
+}
+
+.geometric-shape:nth-child(7n) {
+  clip-path: polygon(25% 0%, 50% 25%, 75% 0%, 100% 25%, 75% 50%, 100% 75%, 75% 100%, 50% 75%, 25% 100%, 0% 75%, 25% 50%, 0% 25%);
+  background: linear-gradient(45deg, rgba(255, 165, 0, 0.04), rgba(255, 255, 0, 0.04));
+}
+
+@keyframes checkerboard {
+  0% {
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+  }
+  100% {
+    background-position: 30px 30px, 30px 45px, 45px 15px, 15px 30px;
+  }
+}
+
+@keyframes colorShift {
+  0% {
+    filter: hue-rotate(0deg) saturate(1.1);
+  }
+  100% {
+    filter: hue-rotate(180deg) saturate(1.3);
+  }
+}
+
+@keyframes rotateShapes {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes morphShape {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.15;
+  }
+  33% {
+    transform: scale(1.05) rotate(60deg);
+    opacity: 0.25;
+  }
+  66% {
+    transform: scale(0.95) rotate(120deg);
+    opacity: 0.1;
+  }
+}

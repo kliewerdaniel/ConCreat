@@ -1,0 +1,189 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "HV15-Rapid-AIO-v1.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "2": {
+    "inputs": {
+      "shift": 8,
+      "model": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "3": {
+    "inputs": {
+      "text": "The cat places one paw on the keyboard and the other on the trackpad, actively using the computer. Green code and terminal windows scroll across the laptop screen, reflected softly in the cat's eyes. Subtle head movements and blinking, ears twitching with focus. The laptop screen glows, illuminating the cat's fur with cool blue and green light. Background is a dimly lit room with soft ambient shadows, cyberpunk atmosphere, shallow depth of field. Smooth natural motion, realistic fur physics, gentle camera push-in, high detail, 4K, cinematic lighting, dramatic but humorous tone, playful \"hacker cat\" energy.",
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "4": {
+    "inputs": {
+      "text": "low resolution, blurry, jittery motion, excessive motion blur, distorted anatomy, extra limbs, malformed paws, broken whiskers, unnatural eye placement, bad fur texture, cartoon style, anime style, exaggerated facial expressions, human hands, humans present, text artifacts, unreadable screen, gibberish symbols, watermark, logo, UI overlays, flickering, frame tearing, camera shake, overexposed lighting, flat lighting, washed out colors, static image, no motion, abrupt cuts, glitch artifacts, horror tone, aggressive behavior, violence",
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt (leave empty)"
+    }
+  },
+  "5": {
+    "inputs": {
+      "seed": 85869543322327,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "er_sde",
+      "scheduler": "beta",
+      "denoise": 1,
+      "model": [
+        "2",
+        0
+      ],
+      "positive": [
+        "12",
+        0
+      ],
+      "negative": [
+        "12",
+        1
+      ],
+      "latent_image": [
+        "12",
+        2
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "7": {
+    "inputs": {
+      "tile_size": 512,
+      "overlap": 32,
+      "temporal_size": 48,
+      "temporal_overlap": 16,
+      "samples": [
+        "5",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE Decode (Tiled)"
+    }
+  },
+  "9": {
+    "inputs": {
+      "frame_rate": 24,
+      "loop_count": 0,
+      "filename_prefix": "HV15Out/vid",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 19,
+      "save_metadata": true,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true,
+      "images": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine 🎥🅥🅗🅢"
+    }
+  },
+  "12": {
+    "inputs": {
+      "width": 208,
+      "height": 208,
+      "length": 121,
+      "batch_size": 1,
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ],
+      "start_image": [
+        "13",
+        0
+      ],
+      "clip_vision_output": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "HunyuanVideo15ImageToVideo",
+    "_meta": {
+      "title": "HunyuanVideo15ImageToVideo"
+    }
+  },
+  "13": {
+    "inputs": {
+      "image": "599721409_873051451736915_6284983488365505119_n.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "14": {
+    "inputs": {
+      "clip_name": "sigclip_vision_patch14_384.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Load CLIP Vision"
+    }
+  },
+  "15": {
+    "inputs": {
+      "crop": "center",
+      "clip_vision": [
+        "14",
+        0
+      ],
+      "image": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "CLIPVisionEncode",
+    "_meta": {
+      "title": "CLIP Vision Encode"
+    }
+  }
+}
