@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "setup": "npm install && python3 -m venv tts_env && source tts_env/bin/activate && pip install chatterbox-tts torch torchaudio scipy",
+    "setup": "./setup.sh",
     "postinstall": "echo '\\n🚀 Setup complete! Run \"npm run dev\" to start the application.\\n'"
   },
   "dependencies": {

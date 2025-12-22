@@ -6,8 +6,10 @@ import io
 import os
 import numpy as np
 
-# Add the chatterbox source directory to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'chatterbox', 'src'))
+# Try to add the chatterbox source directory to Python path (for local development)
+chatterbox_path = os.path.join(os.path.dirname(__file__), 'chatterbox', 'src')
+if os.path.exists(chatterbox_path):
+    sys.path.insert(0, chatterbox_path)
 
 class TTSService:
     def __init__(self):

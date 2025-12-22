@@ -26,12 +26,12 @@ A modern web application for creating and managing multimedia content, featuring
    cd ConCreat
    ```
 
-2. **Install dependencies:**
+2. **Run the setup script:**
    ```bash
-   npm install
+   npm run setup
    ```
 
-   This will automatically set up the Python virtual environment and install required packages.
+   This will install all Node.js and Python dependencies, and set up the Python virtual environment.
 
 3. **Start the development server:**
    ```bash
@@ -52,13 +52,13 @@ If you prefer to set up manually:
 
 2. **Create Python virtual environment:**
    ```bash
-   python3 -m venv tts_env
-   source tts_env/bin/activate  # On Windows: tts_env\Scripts\activate
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install Python dependencies:**
    ```bash
-   pip install chatterbox-tts torch torchaudio scipy
+   pip install -r requirements.txt
    ```
 
 4. **Start the application:**
@@ -85,9 +85,13 @@ ConCreat/
 ├── public/                    # Static assets
 ├── workflows/                 # Workflow configurations
 ├── tts_service.py             # Python TTS service
+├── setup.sh                   # Setup script for easy installation
+├── requirements.txt           # Python dependencies
 ├── package.json               # Node.js dependencies and scripts
 └── README.md                  # This file
 ```
+
+**Note:** The `chatterbox-turbo/` directory (containing TTS model files) will be automatically downloaded and created when the TTS service is first used. It's not included in the repository but will be cached locally.
 
 ## API Endpoints
 

@@ -3,6 +3,43 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { readFile } from 'fs/promises';
 
+interface VoiceMetadata {
+  id: string;
+  name: string;
+  description: string;
+  filePath: string;
+  isDefault: boolean;
+  createdAt: string;
+  type: 'uploaded' | 'built-in';
+}
+
+interface VoicesRegistry {
+  voices: VoiceMetadata[];
+}
+
+async function readVoicesRegistry(): Promise<VoicesRegistry> {
+  const VOICES_JSON = path.join(process.cwd(), 'public', 'voices', 'voices.json');
+  try {
+    const data = await readFile(VOICES_JSON, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // Return default registry if file doesn't exist
+    return {
+      voices: [
+        {
+          id: "default_female",
+          name: "Default Female",
+          description: "Built-in female voice",
+          filePath: "/female_voice.wav",
+          isDefault: true,
+          createdAt: "2025-01-01T00:00:00.000Z",
+          type: "built-in"
+        }
+      ]
+    };
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { text, voice } = await request.json();
@@ -16,12 +53,10 @@ export async function POST(request: NextRequest) {
     if (voice && typeof voice === 'string' && !voice.startsWith('/')) {
       try {
         console.log('Looking up voice path for ID:', voice);
-        const voicesFilePath = path.join(process.cwd(), 'public', 'voices', 'voices.json');
-        const voicesContent = await readFile(voicesFilePath, 'utf-8');
-        const voicesData = JSON.parse(voicesContent);
-        console.log('Voices data:', voicesData);
-        if (voicesData.voices) {
-          const voiceData = voicesData.voices.find((v: { id: string; filePath: string }) => v.id === voice);
+        const voicesRegistry = await readVoicesRegistry();
+        console.log('Voices registry:', voicesRegistry);
+        if (voicesRegistry.voices) {
+          const voiceData = voicesRegistry.voices.find((v: VoiceMetadata) => v.id === voice);
           if (voiceData) {
             voicePath = voiceData.filePath;
             console.log('Found voice path:', voicePath);
@@ -36,9 +71,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Path to the Python TTS service and chatterbox venv
+    // Path to the Python TTS service and venv
     const ttsServicePath = path.join(process.cwd(), 'tts_service.py');
-    const chatterboxVenvPath = path.join(process.cwd(), 'tts_env_311', 'bin', 'python');
+    const chatterboxVenvPath = path.join(process.cwd(), 'venv', 'bin', 'python');
 
     return new Promise((resolve) => {
       // Prepare arguments for Python process
