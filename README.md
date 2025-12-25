@@ -1,12 +1,12 @@
 # ConCreat App
 
-A modern web application for creating and managing multimedia content, featuring AI-powered text-to-speech capabilities using Chatterbox-Turbo.
+A modern web application for creating and managing multimedia content, featuring AI-powered text-to-speech capabilities using Chatterbox.
 
 ## Features
 
 - 🎨 **Image Generation**: Create and manage images
 - 🎬 **Video Processing**: Handle video content and workflows
-- 🗣️ **Text-to-Speech**: Convert text to natural-sounding speech using Chatterbox-Turbo
+- 🗣️ **Text-to-Speech**: Convert text to natural-sounding speech using Chatterbox
 - 🎵 **Voice Cloning**: Clone voices for personalized audio content
 - 📱 **Modern UI**: Built with Next.js, React, and Tailwind CSS
 
@@ -91,7 +91,7 @@ ConCreat/
 └── README.md                  # This file
 ```
 
-**Note:** The `chatterbox-turbo/` directory (containing TTS model files) will be automatically downloaded and created when the TTS service is first used. It's not included in the repository but will be cached locally.
+**Note:** The `chatterbox/` directory (containing TTS model files) will be cloned during setup. It's not included in the repository but will be created locally.
 
 ## API Endpoints
 
@@ -144,5 +144,5 @@ This project is licensed under the MIT License.
 
 - **Frontend:** Next.js, React, TypeScript, Tailwind CSS
 - **Backend:** Next.js API Routes, Python
-- **AI/ML:** Chatterbox-Turbo TTS, PyTorch
+- **AI/ML:** Chatterbox TTS, PyTorch
 - **Deployment:** Vercel (recommended)

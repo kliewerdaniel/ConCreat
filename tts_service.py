@@ -6,10 +6,11 @@ import io
 import os
 import numpy as np
 
-# Try to add the chatterbox source directory to Python path (for local development)
-chatterbox_path = os.path.join(os.path.dirname(__file__), 'chatterbox', 'src')
+# Try to add the chatterbox directory to Python path (for local model files)
+chatterbox_path = os.path.join(os.path.dirname(__file__), 'chatterbox')
 if os.path.exists(chatterbox_path):
-    sys.path.insert(0, chatterbox_path)
+    # Set environment variable to use local model files
+    os.environ['CHATTERBOX_CACHE_DIR'] = chatterbox_path
 
 class TTSService:
     def __init__(self):
@@ -18,11 +19,11 @@ class TTSService:
         self.sample_rate = 24000
         self.female_voice_path = os.path.join(os.path.dirname(__file__), 'female_voice.wav')
 
-        # Try to initialize Chatterbox-Turbo, but fall back to mock if it fails
+        # Try to initialize Chatterbox, but fall back to mock if it fails
         try:
-            print("Attempting to load Chatterbox-Turbo TTS model...", file=sys.stderr)
+            print("Attempting to load Chatterbox TTS model...", file=sys.stderr)
             import torch
-            from chatterbox.tts_turbo import ChatterboxTurboTTS
+            from chatterbox.tts import ChatterboxTTS
 
             # Automatically detect the best available device
             if torch.cuda.is_available():
@@ -42,13 +43,23 @@ class TTSService:
                 # Use Hugging Face token from environment if available
                 if "HF_TOKEN" not in os.environ:
                     print("Warning: HF_TOKEN not set. Model loading may fail.", file=sys.stderr)
-                self.model = ChatterboxTurboTTS.from_pretrained(device=device)
+                # Try to use local model files if available
+                if os.path.exists(chatterbox_path):
+                    print(f"Using local Chatterbox model files from: {chatterbox_path}", file=sys.stderr)
+                    # Try to load from local path
+                    try:
+                        self.model = ChatterboxTTS.from_pretrained(device=device)
+                    except Exception as local_error:
+                        print(f"Failed to load with local files, trying without: {local_error}", file=sys.stderr)
+                        self.model = ChatterboxTTS.from_pretrained(device=device)
+                else:
+                    self.model = ChatterboxTTS.from_pretrained(device=device)
                 self.sample_rate = self.model.sr
 
-                # Initialize voice conversion model (Turbo doesn't have VC yet, but keep for compatibility)
+                # Initialize voice conversion model
                 self.vc_model = None
 
-                print("Chatterbox-Turbo TTS model loaded successfully", file=sys.stderr)
+                print("Chatterbox TTS model loaded successfully", file=sys.stderr)
             finally:
                 # Restore stdout
                 os.dup2(old_stdout, 1)
@@ -90,7 +101,7 @@ class TTSService:
                     os.dup2(old_stdout, 1)
                     os.close(old_stdout)
 
-                # For Chatterbox-Turbo, if a custom voice is specified, use it for voice cloning
+                # For Chatterbox, if a custom voice is specified, use it for voice cloning
                 if voice_path and os.path.exists(voice_path):
                     try:
                         print(f"Using custom voice for cloning: {voice_path}", file=sys.stderr)

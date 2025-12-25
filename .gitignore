@@ -60,8 +60,8 @@ venv/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Chatterbox model files (downloaded automatically)
-chatterbox-turbo/
+# Chatterbox model files (cloned from repository)
+chatterbox/
 
 # OS generated files
 .DS_Store
@@ -71,3 +71,6 @@ chatterbox-turbo/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+/chatterbox/
