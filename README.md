@@ -1,5 +1,7 @@
 # ConCreat App
 
+![ConCreat App Screenshot](ss.png)
+
 A modern web application for creating and managing multimedia content, featuring AI-powered text-to-speech capabilities using Chatterbox.
 
 ## Features
