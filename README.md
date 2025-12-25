@@ -44,6 +44,7 @@
 
 | Feature | Description |
 |---------|-------------|
+| 💬 **AI Chat Assistant** | Interactive conversations powered by Ollama local models |
 | 🎨 **AI Image Generation** | Create stunning images using ComfyUI workflows with GGUF models |
 | 🎬 **Video Processing** | Advanced video generation and processing with HunyuanVideo integration |
 | 🗣️ **Text-to-Speech** | Natural voice synthesis powered by Chatterbox technology |
@@ -128,6 +129,7 @@ pip install -r requirements.txt
 - **Node.js**: Version 18 or higher
 - **Python**: Version 3.11 or above
 - **Git**: For version control
+- **Ollama**: Local AI model server (latest version recommended)
 - **Storage**: At least 10GB free space for models
 
 ### 🚀 Automated Installation
@@ -173,6 +175,28 @@ source venv/bin/activate  # Use `venv\Scripts\activate` on Windows
 ```bash
 pip install -r requirements.txt
 ```
+
+### 🤖 Ollama Setup
+
+ConCreat uses Ollama for local AI chat functionality. Install and set up Ollama:
+
+```bash
+# Install Ollama (follow instructions for your OS at https://ollama.ai)
+# For macOS/Linux:
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# For Windows: Download from https://ollama.ai/download
+
+# Pull recommended models
+ollama pull gemma      # Default chat model
+ollama pull llama2     # Alternative model
+ollama pull mistral    # Additional model option
+
+# Start Ollama service (runs in background)
+ollama serve
+```
+
+> **💡 Note**: Ollama runs on `localhost:11434` by default. The application will automatically detect if Ollama is running and fall back to mock responses if not available.
 
 ### ▶️ Application Launch
 ```bash
@@ -304,6 +328,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ### 🖥️ Backend & AI
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
 ![ComfyUI](https://img.shields.io/badge/ComfyUI-FF6B35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjE2QzE0IDE3LjEgMTMuMSAxOCA5LjUgMThIMTUuNUMxNi45IDE4IDE4IDE2LjkgMTggMTZWNFMxNi45IDIgMTUuNSAySDEyWk0xNSA2VjE0QzE1IDE0LjYgMTQuNiAxNSA0IDE1UzMgMTQuNiAzIDE0VjZTMzYuNCA2IDQgNkgxMloiIGZpbGw9IiNGRjZCMzUiLz4KPC9zdmc+)
 
 ### ☁️ Deployment & Tools
@@ -317,6 +342,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🙏 Acknowledgments
 
+- **[Ollama](https://ollama.ai)** - Local AI model server for chat functionality
 - **[ComfyUI](https://github.com/comfyanonymous/ComfyUI)** - Powerful node-based AI interface
 - **[Chatterbox](https://github.com/fpjohnston/chatterbox)** - Advanced TTS technology
 - **[HunyuanVideo](https://github.com/Tencent/HunyuanVideo)** - High-quality video generation models
