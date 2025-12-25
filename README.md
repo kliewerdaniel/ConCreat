@@ -13,7 +13,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-yellow)](https://www.python.org/)
 
-[🚀 Live Demo](https://concreat.vercel.app) • [📖 Documentation](#-documentation) • [🐛 Report Bug](https://github.com/kliewerdaniel/concreat/issues) • [✨ Request Feature](https://github.com/kliewerdaniel/concreat/issues)
+[📖 Documentation](#-documentation) • [🐛 Report Bug](https://github.com/kliewerdaniel/concreat/issues) • [✨ Request Feature](https://github.com/kliewerdaniel/concreat/issues)
 
 </div>
 
