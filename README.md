@@ -92,16 +92,16 @@ To use the included ComfyUI workflows, you'll need to download the following mod
 
 | Model | Filename | Download Link | Location |
 |-------|----------|---------------|----------|
-| **VAE** | `ae.safetensors` | [Hugging Face](https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors) | `ComfyUI/models/vae/` |
-| **CLIP** | `Qwen3-4B-UD-Q6_K_XL.gguf` | [Hugging Face](https://huggingface.co/ggml-org/Qwen2.5-3B-Instruct-Q6_K_L.gguf) | `ComfyUI/models/clip/` |
-| **Unet** | `z_image_turbo-Q8_0.gguf` | [Hugging Face](https://huggingface.co/city96/FLUX.1-dev-gguf/blob/main/flux1-dev-Q8_0.gguf) | `ComfyUI/models/unet/` |
+| **VAE** | `ae.safetensors` | [Hugging Face](https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors) | `ComfyUI/models/vae/` |
+| **CLIP** | `Qwen3-4B-UD-Q6_K_XL.gguf` | [Hugging Face](https://huggingface.co/unsloth/Qwen3-4B-GGUF/blob/main/Qwen3-4B-UD-Q6_K_XL.gguf) | `ComfyUI/models/clip/` |
+| **Unet** | `z_image_turbo-Q8_0.gguf` | [Hugging Face](https://huggingface.co/jayn7/Z-Image-Turbo-GGUF/blob/main/z_image_turbo-Q8_0.gguf) | `ComfyUI/models/unet/` |
 
 #### 🎬 Required Models for Video Generation
 
 | Model | Filename | Download Link | Location |
 |-------|----------|---------------|----------|
-| **Checkpoint** | `HV15-Rapid-AIO-v1.safetensors` | [Hugging Face](https://huggingface.co/Tencent-Hunyuan/HunyuanVideo/blob/main/HV15-Rapid-AIO-v1.safetensors) | `ComfyUI/models/checkpoints/` |
-| **CLIP Vision** | `sigclip_vision_patch14_384.safetensors` | [Hugging Face](https://huggingface.co/google/siglip-so400m-patch14-384/blob/main/sigclip_vision_patch14_384.safetensors) | `ComfyUI/models/clip_vision/` |
+| **Checkpoint** | `HV15-Rapid-AIO-v1.safetensors` | [Hugging Face](https://huggingface.co/Phr00t/HunyuanVideo-1.5-Rapid-AIO/blob/main/HV15-Rapid-AIO-v1.safetensors) | `ComfyUI/models/checkpoints/` |
+| **CLIP Vision** | `sigclip_vision_patch14_384.safetensors` | [Hugging Face](https://huggingface.co/Comfy-Org/sigclip_vision_384/blob/main/sigclip_vision_patch14_384.safetensors) | `ComfyUI/models/clip_vision/` |
 
 #### 🛠️ ComfyUI Installation
 
