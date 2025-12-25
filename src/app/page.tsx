@@ -100,6 +100,9 @@ export default function Home() {
   const [selectedInputImageFile, setSelectedInputImageFile] = useState<File | null>(null);
   const [videoPrompt, setVideoPrompt] = useState("");
   const [videoNegativePrompt, setVideoNegativePrompt] = useState("");
+  const [videoWidth, setVideoWidth] = useState(208);
+  const [videoHeight, setVideoHeight] = useState(208);
+  const [videoLength, setVideoLength] = useState(121);
 
   // Chat state
   const [chatMessage, setChatMessage] = useState("");
@@ -715,6 +718,11 @@ export default function Home() {
 
       // Update the image path to use the uploaded image
       workflow["13"].inputs.image = uploadedImageName;
+
+      // Update the video parameters
+      workflow["12"].inputs.width = videoWidth;
+      workflow["12"].inputs.height = videoHeight;
+      workflow["12"].inputs.length = videoLength;
 
       // Send to API route
       const promptResponse = await fetch("/api/generate", {
@@ -2116,6 +2124,51 @@ export default function Home() {
                       rows={2}
                       placeholder="Describe what you don't want in the video..."
                     />
+                  </div>
+
+                  {/* Video Parameters */}
+                  <div>
+                    <label className="block text-sm font-medium mb-3 text-slate-300">
+                      Video Parameters
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs text-slate-400 mb-1">Width</label>
+                        <input
+                          type="number"
+                          value={videoWidth}
+                          onChange={(e) => setVideoWidth(parseInt(e.target.value) || 208)}
+                          min="128"
+                          max="1024"
+                          step="16"
+                          className="w-full p-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-400 mb-1">Height</label>
+                        <input
+                          type="number"
+                          value={videoHeight}
+                          onChange={(e) => setVideoHeight(parseInt(e.target.value) || 208)}
+                          min="128"
+                          max="1024"
+                          step="16"
+                          className="w-full p-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-400 mb-1">Length (frames)</label>
+                        <input
+                          type="number"
+                          value={videoLength}
+                          onChange={(e) => setVideoLength(parseInt(e.target.value) || 121)}
+                          min="16"
+                          max="256"
+                          step="1"
+                          className="w-full p-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <button
