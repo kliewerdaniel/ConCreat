@@ -344,7 +344,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - **[Ollama](https://ollama.ai)** - Local AI model server for chat functionality
 - **[ComfyUI](https://github.com/comfyanonymous/ComfyUI)** - Powerful node-based AI interface
-- **[Chatterbox](https://github.com/fpjohnston/chatterbox)** - Advanced TTS technology
+- **[Chatterbox](https://huggingface.co/ResembleAI/chatterbox)** - Advanced TTS technology
 - **[HunyuanVideo](https://github.com/Tencent/HunyuanVideo)** - High-quality video generation models
 - **[Next.js](https://nextjs.org/)** - The React framework for production
 - **[Tailwind CSS](https://tailwindcss.com/)** - A utility-first CSS framework
