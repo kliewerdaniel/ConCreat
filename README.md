@@ -230,8 +230,6 @@ Create a `.env.local` file in the project root:
 # Optional: Hugging Face authentication token for model access
 HF_TOKEN=your_huggingface_token_here
 
-# Optional: OpenAI API key for enhanced features
-OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ---
@@ -273,7 +271,7 @@ We ❤️ contributions! Please follow these steps:
 
 - **🐛 Bug Reports**: [Create an issue](https://github.com/kliewerdaniel/concreat/issues) with the bug label
 - **✨ Feature Requests**: [Create an issue](https://github.com/kliewerdaniel/concreat/issues) with the enhancement label
-- **💬 Questions**: Join our [Discord community](#)
+
 
 ### 📋 Development Guidelines
 
