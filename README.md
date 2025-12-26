@@ -4,8 +4,6 @@
 
 ![ConCreat App Screenshot](ss.png)
 
-<video src="demo.mov" controls width="100%"></video>
-
 **A cutting-edge web application for creating and managing multimedia content with integrated AI-powered capabilities**
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/kliewerdaniel/concreat)
