@@ -1,6 +1,43 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import {
+  ChevronDown,
+  ChevronUp,
+  Image,
+  Video,
+  Download,
+  Copy,
+  Trash2,
+  Plus,
+  Edit,
+  Play,
+  Pause,
+  Loader2,
+  Send,
+  Sparkles,
+  Volume2,
+  VolumeX,
+  X,
+  Settings,
+  Zap,
+  Mic,
+  MessageCircle,
+  Film,
+  Palette,
+  Music,
+  Bot
+} from "lucide-react";
 
 const COMFYUI_URL = "http://localhost:8188";
 
@@ -76,12 +113,7 @@ interface Voice {
 
 
 
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-  timestamp: Date;
-}
+
 
 
 
@@ -114,7 +146,6 @@ export default function Home() {
   // New QoL features state
   const [showPresets, setShowPresets] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [toasts, setToasts] = useState<Toast[]>([]);
   const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [negativePromptCollapsed, setNegativePromptCollapsed] = useState(true);
 
@@ -127,7 +158,7 @@ export default function Home() {
   // Gallery state
   const [unifiedGallery, setUnifiedGallery] = useState<UnifiedMedia[]>([]);
   const [galleryFilter, setGalleryFilter] = useState<'all' | 'images' | 'videos'>('all');
-  const [gallerySortBy, setGallerySortBy] = useState<'newest' | 'oldest' | 'favorites'>('newest');
+  const [gallerySortBy, setGallerySortBy] = useState<'newest' | 'oldest'>('newest');
   const [playingVideos, setPlayingVideos] = useState<Set<string>>(new Set());
 
   // Helper function to get filtered gallery
@@ -144,9 +175,6 @@ export default function Home() {
   // Generation section state
   const [generationCollapsed, setGenerationCollapsed] = useState(false); // Default expanded
 
-  // Chat section state
-  const [chatCollapsed, setChatCollapsed] = useState(false); // Default expanded
-
   // TTS state
   const [ttsText, setTtsText] = useState("");
   const [ttsLoading, setTtsLoading] = useState(false);
@@ -157,7 +185,7 @@ export default function Home() {
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>("default_female");
   const [voiceAndTtsCollapsed, setVoiceAndTtsCollapsed] = useState(true);
-  const [voiceUploadCollapsed, setVoiceUploadCollapsed] = useState(true);
+  const [voiceUploadCollapsed, setVoiceUploadCollapsed] = useState(false);
   const [voiceUploadName, setVoiceUploadName] = useState("");
   const [voiceUploadDescription, setVoiceUploadDescription] = useState("");
   const [voiceUploadFile, setVoiceUploadFile] = useState<File | null>(null);
@@ -1061,16 +1089,13 @@ export default function Home() {
 
   // QoL Utility Functions
   const addToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    const toast: Toast = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      message,
-      type,
-      timestamp: new Date()
-    };
-    setToasts(prev => [...prev, toast]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== toast.id));
-    }, 5000);
+    if (type === 'success') {
+      toast.success(message);
+    } else if (type === 'error') {
+      toast.error(message);
+    } else {
+      toast.info(message);
+    }
   };
 
 
@@ -1483,14 +1508,17 @@ export default function Home() {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Carousel navigation when carousel is open
       if (carouselOpen) {
+        const filteredGallery = getFilteredGallery();
         switch (e.key) {
           case 'ArrowLeft':
             e.preventDefault();
-            prevImage();
+            setCarouselIndex((prev) => (prev - 1 + filteredGallery.length) % filteredGallery.length);
+            setAutoPlay(false);
             break;
           case 'ArrowRight':
             e.preventDefault();
-            nextImage();
+            setCarouselIndex((prev) => (prev + 1) % filteredGallery.length);
+            setAutoPlay(false);
             break;
           case 'Escape':
             e.preventDefault();
@@ -1518,7 +1546,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [loading, positivePrompt, chatLoading, chatMessage, carouselOpen, carouselIndex, pastImages.length]);
+  }, [loading, positivePrompt, chatLoading, chatMessage, carouselOpen, carouselIndex, unifiedGallery, galleryFilter]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -1529,9 +1557,10 @@ export default function Home() {
 
   // Auto-play carousel
   useEffect(() => {
-    if (autoPlay && carouselOpen && pastImages.length > 1) {
+    const filteredGallery = getFilteredGallery();
+    if (autoPlay && carouselOpen && filteredGallery.length > 1) {
       autoPlayRef.current = setInterval(() => {
-        setCarouselIndex((prev) => (prev + 1) % pastImages.length);
+        setCarouselIndex((prev) => (prev + 1) % filteredGallery.length);
       }, slideshowInterval);
     } else {
       if (autoPlayRef.current) {
@@ -1546,7 +1575,7 @@ export default function Home() {
         autoPlayRef.current = null;
       }
     };
-  }, [autoPlay, carouselOpen, pastImages.length, slideshowInterval]);
+  }, [autoPlay, carouselOpen, slideshowInterval, unifiedGallery, galleryFilter]);
 
   // Stop auto-play when carousel closes
   useEffect(() => {
@@ -1555,8 +1584,12 @@ export default function Home() {
     }
   }, [carouselOpen]);
 
-  // Navigation state
-  const [activeTab, setActiveTab] = useState<'generate' | 'gallery' | 'video' | 'chat' | 'voice'>('gallery');
+  // Section collapse states - default collapsed for better UX
+  const [galleryCollapsed, setGalleryCollapsed] = useState(true);
+  const [generateCollapsed, setGenerateCollapsed] = useState(true); // Default collapsed
+  const [videoCollapsed, setVideoCollapsed] = useState(true);
+  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [voiceCollapsed, setVoiceCollapsed] = useState(true);
 
   return (
     <div className="min-h-screen trippy-bg text-gray-100 relative">
@@ -1581,245 +1614,118 @@ export default function Home() {
         <div className="geometric-shape" style={{top: '40%', left: '60%', width: '78px', height: '78px'}}></div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6 relative z-10">
-        {/* Header with Navigation */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-2 shadow-2xl">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setActiveTab('gallery')}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    activeTab === 'gallery'
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  Gallery ({unifiedGallery.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('chat')}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    activeTab === 'chat'
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  Chat
-                </button>
-                <button
-                  onClick={() => setActiveTab('generate')}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    activeTab === 'generate'
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  Photo
-                </button>
-                <button
-                  onClick={() => setActiveTab('video')}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    activeTab === 'video'
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  Video ({pastVideos.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('voice')}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    activeTab === 'voice'
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  Voice
-                </button>
-              </div>
+      <div className="max-w-6xl mx-auto p-2 relative z-10 space-y-2">
+        {/* Gallery Section */}
+        <div className="bg-white/3 backdrop-blur-xl rounded-2xl border border-white/5 shadow-2xl overflow-hidden transition-all duration-500 hover:bg-white/5 hover:border-white/10">
+          <div
+            className="flex items-center justify-between p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
+            onClick={() => setGalleryCollapsed(!galleryCollapsed)}
+          >
+            <h2 className="text-xl font-bold text-white" style={{fontFamily: 'Orbitron, monospace'}}>Media Gallery</h2>
+            <div className="text-white">
+              {galleryCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             </div>
           </div>
-        </div>
 
-        {/* Tab Content */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
-          {/* Generate Tab */}
-          {activeTab === 'generate' && (
-            <div className="p-8 space-y-8">
-              {/* Prompt Input Section */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-3 text-slate-300">
-                      Positive Prompt
-                    </label>
-                    <textarea
-                      value={positivePrompt}
-                      onChange={(e) => setPositivePrompt(e.target.value)}
-                      className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 resize-none backdrop-blur-sm transition-all duration-200"
-                      rows={4}
-                      placeholder="Describe what you want to see in your image..."
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <label className="block text-sm font-medium text-slate-300">
-                        Negative Prompt
-                      </label>
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            galleryCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
+          }`}>
+            <div className="p-4">
+              {/* Gallery Controls */}
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4 mb-6 shadow-lg">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                  {/* Filter & Sort Controls */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    {/* Media Type Filters */}
+                    <div className="flex gap-1 bg-white/5 rounded-xl p-1 border border-white/10">
                       <button
-                        onClick={() => setNegativePromptCollapsed(!negativePromptCollapsed)}
-                        className="w-6 h-6 bg-transparent border border-white/20 hover:border-white/40 transition-all duration-200 rounded-sm"
-                        title={negativePromptCollapsed ? "Expand negative prompt" : "Collapse negative prompt"}
+                        onClick={() => setGalleryFilter('all')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          galleryFilter === 'all'
+                            ? 'bg-blue-500/20 text-blue-200 border border-blue-400/30 shadow-lg'
+                            : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        }`}
                       >
+                        All ({unifiedGallery.length})
+                      </button>
+                      <button
+                        onClick={() => setGalleryFilter('images')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          galleryFilter === 'images'
+                            ? 'bg-green-500/20 text-green-200 border border-green-400/30 shadow-lg'
+                            : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        🖼️ Images ({pastImages.length})
+                      </button>
+                      <button
+                        onClick={() => setGalleryFilter('videos')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          galleryFilter === 'videos'
+                            ? 'bg-purple-500/20 text-purple-200 border border-purple-400/30 shadow-lg'
+                            : 'text-slate-300 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        🎬 Videos ({pastVideos.length})
                       </button>
                     </div>
-                    <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                      negativePromptCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'
-                    }`}>
-                      <textarea
-                        value={negativePrompt}
-                        onChange={(e) => setNegativePrompt(e.target.value)}
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 resize-none backdrop-blur-sm transition-all duration-200"
-                        rows={2}
-                        placeholder="Describe what you don't want to see..."
-                      />
-                    </div>
+
+                    {/* Sort Control */}
+                    <Select value={gallerySortBy} onValueChange={(value) => setGallerySortBy(value as 'newest' | 'oldest')}>
+                      <SelectTrigger className="w-44 bg-white/5 border-white/20 text-white backdrop-blur-sm hover:bg-white/10 transition-all duration-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-white/20 shadow-2xl">
+                      <SelectItem value="newest" className="text-white hover:bg-white/10 focus:bg-white/10">
+                        🕐 Newest First
+                      </SelectItem>
+                      <SelectItem value="oldest" className="text-white hover:bg-white/10 focus:bg-white/10">
+                        🕐 Oldest First
+                      </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  <button
-                    onClick={generateImage}
-                    disabled={loading || !positivePrompt.trim()}
-                    className="w-full py-4 px-6 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/30 disabled:bg-transparent disabled:border-white/10 disabled:cursor-not-allowed rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none shadow-lg hover:shadow-xl disabled:shadow-none"
-                  >
-                    {loading ? (
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                        <span>Generating Image...</span>
-                      </div>
-                    ) : (
-                      <span className="flex items-center justify-center gap-2">
-                        ✨ Generate Image (Ctrl+Enter)
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
+                  {/* Action Controls */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        const mediaItems = getFilteredGallery();
+                        if (mediaItems.length > 0) {
+                          setCarouselIndex(0);
+                          setCarouselOpen(true);
+                          setAutoPlay(true);
+                          addToast("Slideshow started!", "info");
+                        }
+                      }}
+                      disabled={getFilteredGallery().length === 0}
+                      className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-blue-400/30 hover:border-blue-400/50 rounded-xl text-sm font-medium transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
+                      title="Start media slideshow"
+                    >
+                      <Play className="w-4 h-4" />
+                      Slideshow
+                    </button>
 
-              {/* Current Image Display */}
-              {currentImage && (
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
-                  <div className="flex justify-end mb-6">
-                    <button
-                      onClick={() => setCurrentImage(null)}
-                      className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm mr-3"
-                      title="Close image display"
-                    >
-                      ✕ Close
-                    </button>
-                    <button
-                      onClick={() => downloadImage(currentImage, `generated_${Date.now()}.png`)}
-                      className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm"
-                    >
-                      📥 Download
-                    </button>
-                  </div>
-                  <div className="flex justify-center">
-                    <img
-                      src={currentImage}
-                      alt="Generated"
-                      className="max-w-full max-h-[70vh] w-auto h-auto rounded-xl shadow-2xl border border-white/10"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+                    <div className="h-8 w-px bg-white/20"></div>
 
-          {/* Gallery Tab */}
-          {activeTab === 'gallery' && (
-            <div className="p-8">
-              {/* Gallery Header with Filters */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-bold text-white">Media Gallery</h2>
-                  <div className="flex gap-2">
                     <button
-                      onClick={() => setGalleryFilter('all')}
-                      className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${
-                        galleryFilter === 'all'
-                          ? 'bg-white/20 text-white border border-white/30'
-                          : 'bg-white/5 text-slate-300 hover:text-white border border-white/10'
-                      }`}
+                      onClick={async () => {
+                        if (confirm("Are you sure you want to clear all media? This action cannot be undone.")) {
+                          // Clear images
+                          await clearAllImages();
+                          // Clear videos
+                          await clearAllVideos();
+                          addToast("All media cleared successfully", "success");
+                        }
+                      }}
+                      disabled={unifiedGallery.length === 0}
+                      className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 hover:from-red-500/30 hover:to-orange-500/30 border border-red-400/30 hover:border-red-400/50 rounded-xl text-sm font-medium transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none"
+                      title="Clear all media"
                     >
-                      All ({unifiedGallery.length})
-                    </button>
-                    <button
-                      onClick={() => setGalleryFilter('images')}
-                      className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${
-                        galleryFilter === 'images'
-                          ? 'bg-white/20 text-white border border-white/30'
-                          : 'bg-white/5 text-slate-300 hover:text-white border border-white/10'
-                      }`}
-                    >
-                      Images ({pastImages.length})
-                    </button>
-                    <button
-                      onClick={() => setGalleryFilter('videos')}
-                      className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${
-                        galleryFilter === 'videos'
-                          ? 'bg-white/20 text-white border border-white/30'
-                          : 'bg-white/5 text-slate-300 hover:text-white border border-white/10'
-                      }`}
-                    >
-                      Videos ({pastVideos.length})
+                      <Trash2 className="w-4 h-4" />
+                      Clear All
                     </button>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <select
-                    value={gallerySortBy}
-                    onChange={(e) => setGallerySortBy(e.target.value as 'newest' | 'oldest' | 'favorites')}
-                    className="px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white text-sm focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200"
-                  >
-                    <option value="newest" className="bg-slate-800">Newest First</option>
-                    <option value="oldest" className="bg-slate-800">Oldest First</option>
-                    <option value="favorites" className="bg-slate-800">Favorites</option>
-                  </select>
-
-                  <button
-                    onClick={() => {
-                      const imageItems = getFilteredGallery().filter((item: UnifiedMedia) => item.type === 'image');
-                      if (imageItems.length > 0) {
-                        setCarouselIndex(0);
-                        setCarouselOpen(true);
-                        setAutoPlay(true);
-                      }
-                    }}
-                    disabled={getFilteredGallery().filter((item: UnifiedMedia) => item.type === 'image').length === 0}
-                    className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Play Slideshow"
-                  >
-                    ▶️ Slideshow
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      if (confirm("Are you sure you want to clear all media? This action cannot be undone.")) {
-                        // Clear images
-                        await clearAllImages();
-                        // Clear videos
-                        await clearAllVideos();
-                        addToast("All media cleared successfully", "success");
-                      }
-                    }}
-                    disabled={unifiedGallery.length === 0}
-                    className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    🗑️ Clear All
-                  </button>
                 </div>
               </div>
 
@@ -1844,13 +1750,6 @@ export default function Home() {
                     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                     return dateA - dateB;
-                  } else if (gallerySortBy === 'favorites') {
-                    // Favorites first, then by date
-                    if (a.isFavorite && !b.isFavorite) return -1;
-                    if (!a.isFavorite && b.isFavorite) return 1;
-                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                    return dateB - dateA;
                   } else {
                     // newest (default)
                     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -1860,7 +1759,7 @@ export default function Home() {
                 });
 
                 return sorted.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {sorted.map((item: UnifiedMedia, index: number) => (
                       <div key={item.id} className="relative group bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-blue-400/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] backdrop-blur-sm">
                         {/* Media Type Indicator */}
@@ -1933,82 +1832,107 @@ export default function Home() {
                           )}
                         </div>
 
-                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3 pointer-events-none backdrop-blur-sm">
-                          {item.type === 'image' ? (
-                            <>
+                        <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center pointer-events-none backdrop-blur-sm">
+                          <div className="flex flex-col items-center gap-3">
+                            {/* Primary Action Row */}
+                            <div className="flex items-center gap-2">
+                              {item.type === 'image' ? (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // Open image in carousel
+                                      const imageItems = getFilteredGallery().filter((i: UnifiedMedia) => i.type === 'image');
+                                      const imageIndex = imageItems.findIndex((i: UnifiedMedia) => i.id === item.id);
+                                      if (imageIndex !== -1) {
+                                        setCarouselIndex(imageIndex);
+                                        setCarouselOpen(true);
+                                      }
+                                    }}
+                                    className="pointer-events-auto p-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 hover:border-blue-400/50 rounded-full transition-all duration-200 backdrop-blur-sm text-blue-300 hover:text-blue-200 shadow-lg"
+                                    title="View Full Size"
+                                  >
+                                    <Image className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      copyPrompt(item.prompt || '');
+                                    }}
+                                    className="pointer-events-auto p-3 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 hover:border-green-400/50 rounded-full transition-all duration-200 backdrop-blur-sm text-green-300 hover:text-green-200 shadow-lg"
+                                    title="Copy Prompt"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleVideoPlay(item.id);
+                                    }}
+                                    className={`pointer-events-auto p-3 rounded-full transition-all duration-200 backdrop-blur-sm shadow-lg ${
+                                      playingVideos.has(item.id)
+                                        ? 'bg-red-500/30 border border-red-400/50 text-red-200 hover:bg-red-500/40'
+                                        : 'bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 hover:border-blue-400/50 text-blue-300 hover:text-blue-200'
+                                    }`}
+                                    title={playingVideos.has(item.id) ? "Pause Video" : "Play Video"}
+                                  >
+                                    {playingVideos.has(item.id) ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      copyPrompt(item.prompt || '');
+                                    }}
+                                    className="pointer-events-auto p-3 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 hover:border-green-400/50 rounded-full transition-all duration-200 backdrop-blur-sm text-green-300 hover:text-green-200 shadow-lg"
+                                    title="Copy Prompt"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Secondary Actions Row */}
+                            <div className="flex items-center gap-2">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  downloadImage(
-                                    item.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(item.filename)}&subfolder=${encodeURIComponent(item.subfolder)}&type=output`,
-                                    item.localFilename || item.filename
-                                  );
+                                  if (item.type === 'image') {
+                                    downloadImage(
+                                      item.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(item.filename)}&subfolder=${encodeURIComponent(item.subfolder)}&type=output`,
+                                      item.localFilename || item.filename
+                                    );
+                                  } else {
+                                    downloadVideo(
+                                      item.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(item.filename)}&subfolder=${encodeURIComponent(item.subfolder)}&type=output`,
+                                      item.localFilename || item.filename
+                                    );
+                                  }
                                 }}
-                                className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
+                                className="pointer-events-auto p-3 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/30 hover:border-purple-400/50 rounded-full transition-all duration-200 backdrop-blur-sm text-purple-300 hover:text-purple-200 shadow-lg"
                                 title="Download"
                               >
-                                📥
+                                <Download className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  copyPrompt(item.prompt || '');
+                                  if (item.type === 'image') {
+                                    deleteImage(item.localFilename || item.filename);
+                                  } else {
+                                    deleteVideo(item.localFilename || item.filename);
+                                  }
                                 }}
-                                className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
-                                title="Copy prompt"
-                              >
-                                📋
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteImage(item.localFilename || item.filename);
-                                }}
-                                className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
+                                className="pointer-events-auto p-3 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 rounded-full transition-all duration-200 backdrop-blur-sm text-red-300 hover:text-red-200 shadow-lg"
                                 title="Delete"
                               >
-                                🗑️
+                                <Trash2 className="w-4 h-4" />
                               </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleVideoPlay(item.id);
-                                }}
-                                className={`pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white ${
-                                  playingVideos.has(item.id) ? 'bg-red-500/20 border-red-400/30' : ''
-                                }`}
-                                title={playingVideos.has(item.id) ? "Pause" : "Play"}
-                              >
-                                {playingVideos.has(item.id) ? '⏸️' : '▶️'}
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  downloadVideo(
-                                    item.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(item.filename)}&subfolder=${encodeURIComponent(item.subfolder)}&type=output`,
-                                    item.localFilename || item.filename
-                                  );
-                                }}
-                                className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
-                                title="Download"
-                              >
-                                📥
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteVideo(item.localFilename || item.filename);
-                                }}
-                                className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
-                                title="Delete"
-                              >
-                                🗑️
-                              </button>
-                            </>
-                          )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -2038,13 +1962,133 @@ export default function Home() {
                 );
               })()}
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Video Tab */}
-          {activeTab === 'video' && (
-            <div className="p-8 space-y-8">
+        {/* Photo Generation Section */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+          <div
+            className="flex items-center justify-between p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
+            onClick={() => setGenerateCollapsed(!generateCollapsed)}
+          >
+            <h2 className="text-xl font-bold text-white" style={{fontFamily: 'Orbitron, monospace'}}>Photo Generation</h2>
+            <div className="text-white">
+              {generateCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            generateCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
+          }`}>
+            <div className="p-4 space-y-4">
+              {/* Prompt Input Section */}
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-3 text-slate-300">
+                      Positive Prompt
+                    </label>
+                    <Textarea
+                      value={positivePrompt}
+                      onChange={(e) => setPositivePrompt(e.target.value)}
+                      className="w-full bg-white/5 border-white/10 text-white placeholder-slate-400 focus:border-gray-400/50 resize-none backdrop-blur-sm transition-all duration-200 min-h-[100px]"
+                      placeholder="Describe what you want to see in your image..."
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-medium text-slate-300">
+                        Negative Prompt
+                      </label>
+                      <button
+                        onClick={() => setNegativePromptCollapsed(!negativePromptCollapsed)}
+                        className="w-6 h-6 bg-transparent border border-white/20 hover:border-white/40 transition-all duration-200 rounded-sm"
+                        title={negativePromptCollapsed ? "Expand negative prompt" : "Collapse negative prompt"}
+                      >
+                      </button>
+                    </div>
+                    <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      negativePromptCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'
+                    }`}>
+                      <textarea
+                        value={negativePrompt}
+                        onChange={(e) => setNegativePrompt(e.target.value)}
+                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 resize-none backdrop-blur-sm transition-all duration-200"
+                        rows={2}
+                        placeholder="Describe what you don't want to see..."
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={generateImage}
+                    disabled={loading || !positivePrompt.trim()}
+                    className="w-full py-4 px-6 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/30 disabled:bg-transparent disabled:border-white/10 disabled:cursor-not-allowed rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none shadow-lg hover:shadow-xl disabled:shadow-none"
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
+                        <span>Generating Image...</span>
+                      </div>
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        <Sparkles className="w-4 h-4 mr-1" /> Generate Image (Ctrl+Enter)
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Current Image Display */}
+              {currentImage && (
+                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+                  <div className="flex justify-end mb-6">
+                    <button
+                      onClick={() => setCurrentImage(null)}
+                      className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm mr-3"
+                      title="Close image display"
+                    >
+                      ✕ Close
+                    </button>
+                    <button
+                      onClick={() => downloadImage(currentImage, `generated_${Date.now()}.png`)}
+                      className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm"
+                    >
+                      📥 Download
+                    </button>
+                  </div>
+                  <div className="flex justify-center">
+                    <img
+                      src={currentImage}
+                      alt="Generated"
+                      className="max-w-full max-h-[70vh] w-auto h-auto rounded-xl shadow-2xl border border-white/10"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Video Generation Section */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+          <div
+            className="flex items-center justify-between p-6 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
+            onClick={() => setVideoCollapsed(!videoCollapsed)}
+          >
+            <h2 className="text-xl font-bold text-white" style={{fontFamily: 'Orbitron, monospace'}}>Video Generation</h2>
+            <div className="text-white">
+              {videoCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            videoCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
+          }`}>
+            <div className="p-4 space-y-4">
               {/* Video Generation Section */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl">
                 <div className="space-y-6">
                   {/* Input Image Selection */}
                   <div>
@@ -2108,7 +2152,7 @@ export default function Home() {
                       value={videoPrompt}
                       onChange={(e) => setVideoPrompt(e.target.value)}
                       className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 resize-none backdrop-blur-sm transition-all duration-200"
-                      rows={3}
+                      rows={2}
                       placeholder="Describe the motion and animation you want in the video..."
                     />
                   </div>
@@ -2128,12 +2172,12 @@ export default function Home() {
 
                   {/* Video Parameters */}
                   <div>
-                    <label className="block text-sm font-medium mb-3 text-slate-300">
+                    <label className="block text-sm font-medium mb-2 text-slate-300">
                       Video Parameters
                     </label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Width</label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 whitespace-nowrap">W:</label>
                         <input
                           type="number"
                           value={videoWidth}
@@ -2141,11 +2185,11 @@ export default function Home() {
                           min="128"
                           max="1024"
                           step="16"
-                          className="w-full p-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center"
+                          className="w-20 p-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center text-sm"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Height</label>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 whitespace-nowrap">H:</label>
                         <input
                           type="number"
                           value={videoHeight}
@@ -2153,11 +2197,11 @@ export default function Home() {
                           min="128"
                           max="1024"
                           step="16"
-                          className="w-full p-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center"
+                          className="w-20 p-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center text-sm"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">Length (frames)</label>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 whitespace-nowrap">Frames:</label>
                         <input
                           type="number"
                           value={videoLength}
@@ -2165,7 +2209,7 @@ export default function Home() {
                           min="16"
                           max="256"
                           step="1"
-                          className="w-full p-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center"
+                          className="w-20 p-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200 text-center text-sm"
                         />
                       </div>
                     </div>
@@ -2183,7 +2227,7 @@ export default function Home() {
                       </div>
                     ) : (
                       <span className="flex items-center justify-center gap-2">
-                        🎬 Generate Video
+                        <Film className="w-4 h-4 mr-1" /> Generate Video
                       </span>
                     )}
                   </button>
@@ -2217,121 +2261,46 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
-              {/* Video Gallery */}
-              {pastVideos.length > 0 && (
-                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-white">Generated Videos</h3>
-                    <button
-                      onClick={clearAllVideos}
-                      className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm"
-                    >
-                      🗑️ Clear All
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {pastVideos.map((video, index) => {
-                      const videoId = `vid-${video.filename}-${video.prompt_id}`;
-                      return (
-                        <div key={index} className="relative group bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-blue-400/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-[1.02] backdrop-blur-sm">
-                          <div className="aspect-video flex items-center justify-center p-3">
-                            <video
-                              ref={(el) => {
-                                if (el) {
-                                  videoRefs.current.set(videoId, el);
-                                } else {
-                                  videoRefs.current.delete(videoId);
-                                }
-                              }}
-                              src={video.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(video.filename)}&subfolder=${encodeURIComponent(video.subfolder)}&type=output`}
-                              className="max-w-full max-h-full w-auto h-auto object-contain cursor-pointer rounded-lg"
-                              onClick={() => setCurrentVideo(video.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(video.filename)}&subfolder=${encodeURIComponent(video.subfolder)}&type=output`)}
-                              muted
-                              onMouseEnter={(e) => {
-                                if (!playingVideos.has(videoId)) {
-                                  e.currentTarget.play();
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!playingVideos.has(videoId)) {
-                                  e.currentTarget.pause();
-                                }
-                              }}
-                              onEnded={() => handleVideoEnd(videoId)}
-                              playsInline
-                            />
-                          </div>
-
-                          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3 pointer-events-none backdrop-blur-sm">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleVideoPlay(videoId);
-                              }}
-                              className={`pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white ${
-                                playingVideos.has(videoId) ? 'bg-red-500/20 border-red-400/30' : ''
-                              }`}
-                              title={playingVideos.has(videoId) ? "Pause" : "Play"}
-                            >
-                              {playingVideos.has(videoId) ? '⏸️' : '▶️'}
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                downloadVideo(
-                                  video.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(video.filename)}&subfolder=${encodeURIComponent(video.subfolder)}&type=output`,
-                                  video.localFilename || video.filename
-                                );
-                              }}
-                              className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
-                              title="Download"
-                            >
-                              📥
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteVideo(video.localFilename || video.filename);
-                              }}
-                              className="pointer-events-auto p-3 bg-transparent hover:bg-white/10 border border-white/20 rounded-full transition-all duration-200 backdrop-blur-sm text-white"
-                              title="Delete"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Chat Tab */}
-          {activeTab === 'chat' && (
-            <div className="flex flex-col h-[80vh]">
+        {/* Chat Section */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+          <div
+            className="flex items-center justify-between p-6 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
+            onClick={() => setChatCollapsed(!chatCollapsed)}
+          >
+            <h2 className="text-xl font-bold text-white" style={{fontFamily: 'Orbitron, monospace'}}>AI Chat</h2>
+            <div className="text-white">
+              {chatCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            chatCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
+          }`}>
+            <div className="flex flex-col h-[50vh]">
               {/* Chat Header */}
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-slate-300">Model:</label>
-                  <select
-                    value={selectedModel}
-                    onChange={(e) => setSelectedModel(e.target.value)}
-                    className="px-3 py-1 bg-white/5 border border-white/20 rounded-lg text-white text-sm focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 backdrop-blur-sm transition-all duration-200"
-                  >
-                    {availableModels.map((model) => (
-                      <option key={model} value={model} className="bg-slate-800">
-                        {model}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger className="w-32 bg-white/5 border-white/20 text-white backdrop-blur-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-white/20">
+                      {availableModels.map((model) => (
+                        <SelectItem key={model} value={model} className="text-white hover:bg-white/10">
+                          {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <button
                   onClick={clearChat}
-                  className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm"
+                  className="px-3 py-1.5 bg-transparent hover:bg-white/5 border border-white/20 rounded-lg text-sm transition-all duration-200 backdrop-blur-sm"
                 >
                   🗑️ Clear Chat
                 </button>
@@ -2340,7 +2309,7 @@ export default function Home() {
               {/* Chat Messages */}
               <div
                 ref={chatMessagesRef}
-                className="flex-1 overflow-y-auto p-6 space-y-6"
+                className="flex-1 overflow-y-auto p-4 space-y-4"
               >
                 {chatMessages.map((message) => (
                   <div
@@ -2422,18 +2391,32 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Voice Tab */}
-          {activeTab === 'voice' && (
-            <div className="p-8 space-y-8">
+        {/* Voice Section */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+          <div
+            className="flex items-center justify-between p-6 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
+            onClick={() => setVoiceCollapsed(!voiceCollapsed)}
+          >
+            <h2 className="text-xl font-bold text-white" style={{fontFamily: 'Orbitron, monospace'}}>Voice & TTS</h2>
+            <div className="text-white">
+              {voiceCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            voiceCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
+          }`}>
+            <div className="p-4 space-y-4">
               {/* Voice Management */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-white">Voice Management</h2>
+                  <h3 className="text-lg font-semibold text-white">Voice Management</h3>
                   <button
                     onClick={() => setVoiceUploadCollapsed(!voiceUploadCollapsed)}
-                    className="px-4 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm transition-all duration-200 backdrop-blur-sm"
+                    className="px-3 py-1.5 bg-transparent hover:bg-white/5 border border-white/20 rounded-lg text-sm transition-all duration-200 backdrop-blur-sm"
                     title="Upload new voice"
                   >
                     ➕ Upload Voice
@@ -2441,64 +2424,73 @@ export default function Home() {
                 </div>
 
                 {voices.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {voices.map((voice) => (
-                      <div key={voice.id} className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-4 shadow-lg">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-white">{voice.name}</h3>
+                      <div key={voice.id} className="bg-white/5 backdrop-blur-xl rounded-lg border border-white/10 p-2 shadow-lg hover:shadow-xl transition-all duration-200">
+                        <div className="flex items-start justify-between mb-1">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-white text-xs truncate">{voice.name}</h4>
                             {voice.description && (
-                              <p className="text-sm text-slate-400 mt-1">{voice.description}</p>
+                              <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{voice.description}</p>
                             )}
-                            <p className="text-xs text-slate-500 mt-2">
-                              {voice.type === 'built-in' ? 'Built-in' : 'Uploaded'} • {new Date(voice.createdAt).toLocaleDateString()}
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {voice.type === 'built-in' ? 'Built-in' : 'Uploaded'}
                             </p>
                           </div>
                           {voice.isDefault && (
-                            <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-400/30">
+                            <span className="px-1 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-400/30 ml-1 flex-shrink-0">
                               Default
                             </span>
                           )}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1">
                           <button
                             onClick={() => previewVoice(voice.id)}
-                            className="flex-1 px-3 py-2 bg-transparent hover:bg-white/10 border border-white/20 rounded-lg text-sm transition-all duration-200"
+                            className="flex-1 px-1.5 py-1 bg-transparent hover:bg-white/10 border border-white/20 rounded text-xs transition-all duration-200"
                           >
-                            🔊 Preview
+                            🔊
                           </button>
-                          {!voice.isDefault && (
+                          {!voice.isDefault && voice.type !== 'uploaded' && (
                             <>
                               <button
                                 onClick={() => setEditingVoice(voice)}
-                                className="px-3 py-2 bg-transparent hover:bg-white/10 border border-white/20 rounded-lg text-sm transition-all duration-200"
+                                className="px-1.5 py-1 bg-transparent hover:bg-white/10 border border-white/20 rounded text-xs transition-all duration-200"
                                 title="Edit voice"
                               >
                                 ✏️
                               </button>
                               <button
                                 onClick={() => deleteVoice(voice.id)}
-                                className="px-3 py-2 bg-transparent hover:bg-red-500/20 border border-red-400/30 rounded-lg text-sm transition-all duration-200 text-red-300"
+                                className="px-1.5 py-1 bg-transparent hover:bg-red-500/20 border border-red-400/30 rounded text-xs transition-all duration-200 text-red-300"
                                 title="Delete voice"
                               >
                                 🗑️
                               </button>
                             </>
                           )}
+                          {!voice.isDefault && voice.type === 'uploaded' && (
+                            <button
+                              onClick={() => deleteVoice(voice.id)}
+                              className="flex-1 px-1.5 py-1 bg-transparent hover:bg-red-500/20 border border-red-400/30 rounded text-xs transition-all duration-200 text-red-300"
+                              title="Delete voice"
+                            >
+                              🗑️
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-slate-400">No voices available</p>
+                  <div className="text-center py-6">
+                    <p className="text-slate-400 text-sm">No voices available</p>
                   </div>
                 )}
               </div>
 
               {/* TTS Input */}
-              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl">
-                <div className="space-y-6">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-2xl">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-white">Text-to-Speech</h3>
                     {/* Voice Selection */}
@@ -2519,29 +2511,29 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-3 text-slate-300">
+                    <label className="block text-sm font-medium mb-2 text-slate-300">
                       Enter text to convert to speech
                     </label>
-                    <textarea
-                      value={ttsText}
-                      onChange={(e) => setTtsText(e.target.value)}
-                      onKeyPress={handleTTSKeyPress}
-                      className="w-full p-4 bg-white/5 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 resize-none backdrop-blur-sm transition-all duration-200"
-                      rows={4}
-                      placeholder="Type any text here to hear it spoken..."
-                      disabled={ttsLoading}
-                    />
+                      <textarea
+                        value={ttsText}
+                        onChange={(e) => setTtsText(e.target.value)}
+                        onKeyPress={handleTTSKeyPress}
+                        className="w-full p-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:border-gray-400/50 focus:ring-2 focus:ring-gray-400/20 resize-none backdrop-blur-sm transition-all duration-200 text-sm"
+                        rows={2}
+                        placeholder="Type any text here to hear it spoken..."
+                        disabled={ttsLoading}
+                      />
                   </div>
 
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <button
                       onClick={playTTSInput}
                       disabled={!ttsText.trim() || ttsLoading}
-                      className="flex-1 py-4 px-6 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/30 disabled:bg-transparent disabled:border-white/10 disabled:cursor-not-allowed rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none shadow-lg hover:shadow-xl disabled:shadow-none"
+                      className="flex-1 py-3 px-4 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/30 disabled:bg-transparent disabled:border-white/10 disabled:cursor-not-allowed rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none shadow-lg hover:shadow-xl disabled:shadow-none text-sm"
                     >
                       {ttsLoading ? (
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
                           <span>Generating Speech...</span>
                         </div>
                       ) : (
@@ -2554,7 +2546,7 @@ export default function Home() {
                     {ttsAudioBlob && ttsAudioUrl && (
                       <button
                         onClick={downloadTTS}
-                        className="px-6 py-4 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/30 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                        className="px-4 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/30 rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl text-sm"
                         title="Download TTS Audio"
                       >
                         📥 Download
@@ -2630,7 +2622,7 @@ export default function Home() {
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
 
 
@@ -2678,163 +2670,181 @@ export default function Home() {
           </div>
         )}
 
-        {/* Image Carousel Modal */}
-        {carouselOpen && pastImages.length > 0 && (
-          <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50" onClick={closeCarousel}>
-            <div className="relative max-w-6xl max-h-[95vh] w-full mx-6">
-              {/* Close button */}
-              <button
-                onClick={closeCarousel}
-                className="absolute top-6 right-6 z-20 text-white hover:text-slate-300 transition-all duration-200 text-3xl p-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
-              >
-                ✕
-              </button>
+        {/* Media Carousel Modal */}
+        {carouselOpen && (() => {
+          const filteredGallery = getFilteredGallery();
+          const currentItem = filteredGallery[carouselIndex];
+          return filteredGallery.length > 0 ? (
+            <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50" onClick={closeCarousel}>
+              <div className="relative max-w-6xl max-h-[95vh] w-full mx-6">
+                {/* Close button */}
+                <button
+                  onClick={closeCarousel}
+                  className="absolute top-6 right-6 z-20 text-white hover:text-slate-300 transition-all duration-200 text-3xl p-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
+                >
+                  ✕
+                </button>
 
-              {/* Navigation buttons */}
-              {pastImages.length > 1 && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      prevImage();
-                    }}
-                    className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-4xl z-20 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      nextImage();
-                    }}
-                    className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-4xl z-20 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm"
-                  >
-                    ›
-                  </button>
-                </>
-              )}
-
-              {/* Main image */}
-              <div className="flex justify-center items-center py-16">
-                <img
-                  src={pastImages[carouselIndex].localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(pastImages[carouselIndex].filename)}&subfolder=${encodeURIComponent(pastImages[carouselIndex].subfolder)}&type=output`}
-                  alt={`Image ${carouselIndex + 1}`}
-                  className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-
-              {/* Image info and controls */}
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-6 mb-6">
-                  <span className="text-lg text-slate-300 font-medium px-4 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
-                    {carouselIndex + 1} of {pastImages.length}
-                  </span>
-                </div>
-
-                {/* Slideshow Controls */}
-                {pastImages.length > 1 && (
-                  <div className="flex flex-col items-center gap-4 mb-8">
+                {/* Navigation buttons */}
+                {filteredGallery.length > 1 && (
+                  <>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleAutoPlay();
+                        setCarouselIndex((prev) => (prev - 1 + filteredGallery.length) % filteredGallery.length);
+                        setAutoPlay(false);
                       }}
-                      className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm border bg-transparent hover:bg-white/5 border-white/20 text-white"
+                      className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-4xl z-20 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm"
                     >
-                      {autoPlay ? '⏸️ Pause Slideshow' : '▶️ Start Slideshow'}
+                      ‹
                     </button>
-
-                    {/* Slideshow Speed Slider */}
-                    <div className="flex items-center gap-4 bg-white/5 rounded-xl px-6 py-4 backdrop-blur-sm border border-white/10">
-                      <span className="text-sm text-slate-300 font-medium">Speed:</span>
-                      <input
-                        type="range"
-                        min="1000"
-                        max="30000"
-                        step="1000"
-                        value={slideshowInterval}
-                        onChange={(e) => setSlideshowInterval(Number(e.target.value))}
-                        className="w-32 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider accent-blue-400"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <span className="text-sm text-white min-w-[50px] font-mono">
-                        {(slideshowInterval / 1000).toFixed(1)}s
-                      </span>
-                    </div>
-                  </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCarouselIndex((prev) => (prev + 1) % filteredGallery.length);
+                        setAutoPlay(false);
+                      }}
+                      className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-4xl z-20 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm"
+                    >
+                      ›
+                    </button>
+                  </>
                 )}
 
-                {/* Action buttons */}
-                <div className="flex items-center justify-center gap-4">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      downloadImage(
-                        pastImages[carouselIndex].localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(pastImages[carouselIndex].filename)}&subfolder=${encodeURIComponent(pastImages[carouselIndex].subfolder)}&type=output`,
-                        pastImages[carouselIndex].localFilename || pastImages[carouselIndex].filename
-                      );
-                    }}
-                    className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-                  >
-                    📥 Download
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copyPrompt(pastImages[carouselIndex].prompt || '');
-                    }}
-                    className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-                  >
-                    📋 Copy Prompt
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteImage(pastImages[carouselIndex].localFilename || pastImages[carouselIndex].filename);
-                      if (pastImages.length > 1) {
-                        if (carouselIndex === pastImages.length - 1) {
-                          setCarouselIndex(carouselIndex - 1);
-                        }
-                      } else {
-                        closeCarousel();
-                      }
-                    }}
-                    className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-                  >
-                    🗑️ Delete
-                  </button>
+                {/* Main media content */}
+                <div className="flex justify-center items-center py-16">
+                  {currentItem.type === 'image' ? (
+                    <img
+                      src={currentItem.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(currentItem.filename)}&subfolder=${encodeURIComponent(currentItem.subfolder)}&type=output`}
+                      alt={`Image ${carouselIndex + 1}`}
+                      className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <video
+                      src={currentItem.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(currentItem.filename)}&subfolder=${encodeURIComponent(currentItem.subfolder)}&type=output`}
+                      controls
+                      autoPlay
+                      className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
                 </div>
 
-                {/* Prompt display */}
-                {pastImages[carouselIndex].prompt && (
-                  <div className="mt-8 text-left bg-white/5 rounded-2xl p-6 max-w-3xl mx-auto backdrop-blur-sm border border-white/10 shadow-lg">
-                    <p className="text-slate-200 leading-relaxed">{pastImages[carouselIndex].prompt}</p>
+                {/* Media info and controls */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-6 mb-6">
+                    <span className="text-lg text-slate-300 font-medium px-4 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
+                      {carouselIndex + 1} of {filteredGallery.length}
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      currentItem.type === 'image'
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-400/30'
+                        : 'bg-green-500/20 text-green-300 border border-green-400/30'
+                    }`}>
+                      {currentItem.type === 'image' ? '🖼️ IMAGE' : '🎬 VIDEO'}
+                    </span>
                   </div>
-                )}
+
+                  {/* Slideshow Controls */}
+                  {filteredGallery.length > 1 && (
+                    <div className="flex flex-col items-center gap-4 mb-8">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleAutoPlay();
+                        }}
+                        className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm border bg-transparent hover:bg-white/5 border-white/20 text-white"
+                      >
+                        {autoPlay ? '⏸️ Pause Slideshow' : '▶️ Start Slideshow'}
+                      </button>
+
+                      {/* Slideshow Speed Slider */}
+                      <div className="flex items-center gap-4 bg-white/5 rounded-xl px-6 py-4 backdrop-blur-sm border border-white/10">
+                        <span className="text-sm text-slate-300 font-medium">Speed:</span>
+                        <input
+                          type="range"
+                          min="1000"
+                          max="30000"
+                          step="1000"
+                          value={slideshowInterval}
+                          onChange={(e) => setSlideshowInterval(Number(e.target.value))}
+                          className="w-32 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider accent-blue-400"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <span className="text-sm text-white min-w-[50px] font-mono">
+                          {(slideshowInterval / 1000).toFixed(1)}s
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentItem.type === 'image') {
+                          downloadImage(
+                            currentItem.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(currentItem.filename)}&subfolder=${encodeURIComponent(currentItem.subfolder)}&type=output`,
+                            currentItem.localFilename || currentItem.filename
+                          );
+                        } else {
+                          downloadVideo(
+                            currentItem.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(currentItem.filename)}&subfolder=${encodeURIComponent(currentItem.subfolder)}&type=output`,
+                            currentItem.localFilename || currentItem.filename
+                          );
+                        }
+                      }}
+                      className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    >
+                      📥 Download
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyPrompt(currentItem.prompt || '');
+                      }}
+                      className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    >
+                      📋 Copy Prompt
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (currentItem.type === 'image') {
+                          deleteImage(currentItem.localFilename || currentItem.filename);
+                        } else {
+                          deleteVideo(currentItem.localFilename || currentItem.filename);
+                        }
+                        if (filteredGallery.length > 1) {
+                          if (carouselIndex === filteredGallery.length - 1) {
+                            setCarouselIndex(carouselIndex - 1);
+                          }
+                        } else {
+                          closeCarousel();
+                        }
+                      }}
+                      className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+
+                  {/* Prompt display */}
+                  {currentItem.prompt && (
+                    <div className="mt-8 text-left bg-white/5 rounded-2xl p-6 max-w-3xl mx-auto backdrop-blur-sm border border-white/10 shadow-lg">
+                      <p className="text-slate-200 leading-relaxed">{currentItem.prompt}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          ) : null;
+        })()}
       </div>
 
-      {/* Toast Notifications */}
-      <div className="fixed bottom-4 right-4 space-y-2 z-50">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`p-4 rounded-lg shadow-lg backdrop-blur-sm border transition-all duration-300 ${
-              toast.type === 'success'
-                ? 'bg-green-900/90 border-green-700 text-green-100'
-                : toast.type === 'error'
-                ? 'bg-red-900/90 border-red-700 text-red-100'
-                : 'bg-blue-900/90 border-blue-700 text-blue-100'
-            }`}
-          >
-            {toast.message}
-          </div>
-        ))}
-      </div>
+      <Toaster />
     </div>
   );
 }
