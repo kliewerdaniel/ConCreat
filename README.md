@@ -4,7 +4,7 @@
 
 ![ConCreat App Screenshot](ss.png)
 
-![ConCreat App Demo](demo.mov)
+<video src="demo.mov" controls width="100%"></video>
 
 **A cutting-edge web application for creating and managing multimedia content with integrated AI-powered capabilities**
 
