@@ -2,7 +2,7 @@
 
 # 🎨 ConCreat
 
-![ConCreat App Screenshot](ss.png)
+
 
 <video src="demo.mov" controls width="100%"></video>
 
