@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Toaster } from "@/components/ui/sonner";
+import Sidebar from "@/components/ui/sidebar";
 import { toast } from "sonner";
 import {
   ChevronDown,
@@ -1528,6 +1529,37 @@ export default function Home() {
         return;
       }
 
+      // Section navigation shortcuts (Alt + number)
+      if (e.altKey) {
+        switch (e.key) {
+          case '1':
+            e.preventDefault();
+            scrollToSection('gallery');
+            break;
+          case '2':
+            e.preventDefault();
+            scrollToSection('photo');
+            break;
+          case '3':
+            e.preventDefault();
+            scrollToSection('video');
+            break;
+          case '4':
+            e.preventDefault();
+            scrollToSection('chat');
+            break;
+          case '5':
+            e.preventDefault();
+            scrollToSection('voice');
+            break;
+          case '0':
+            e.preventDefault();
+            handleCollapseAll();
+            break;
+        }
+        return;
+      }
+
       // Regular shortcuts when carousel is closed
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
@@ -1591,8 +1623,68 @@ export default function Home() {
   const [chatCollapsed, setChatCollapsed] = useState(true);
   const [voiceCollapsed, setVoiceCollapsed] = useState(true);
 
+  // Sidebar navigation state
+  const [activeSection, setActiveSection] = useState('gallery');
+
+  // Handle section change from sidebar
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
+    // Collapse all sections first
+    setGalleryCollapsed(true);
+    setGenerateCollapsed(true);
+    setVideoCollapsed(true);
+    setChatCollapsed(true);
+    setVoiceCollapsed(true);
+
+    // Expand the selected section
+    switch (section) {
+      case 'gallery':
+        setGalleryCollapsed(false);
+        break;
+      case 'photo':
+        setGenerateCollapsed(false);
+        break;
+      case 'video':
+        setVideoCollapsed(false);
+        break;
+      case 'chat':
+        setChatCollapsed(false);
+        break;
+      case 'voice':
+        setVoiceCollapsed(false);
+        break;
+    }
+  };
+
+  // Handle collapse all sections (logo click)
+  const handleCollapseAll = () => {
+    setActiveSection('');
+    setGalleryCollapsed(true);
+    setGenerateCollapsed(true);
+    setVideoCollapsed(true);
+    setChatCollapsed(true);
+    setVoiceCollapsed(true);
+  };
+
+  // Scroll to section function for keyboard shortcuts
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+      // Trigger section expansion
+      handleSectionChange(sectionId);
+    }
+  };
+
   return (
     <div className="min-h-screen trippy-bg text-gray-100 relative">
+      {/* Sidebar */}
+      <Sidebar activeSection={activeSection} onSectionChange={handleSectionChange} onCollapseAll={handleCollapseAll} />
+
       {/* Geometric animation layers */}
       <div className="geometric-layer">
         <div className="geometric-shape" style={{top: '10%', left: '10%', width: '100px', height: '100px'}}></div>
@@ -1614,9 +1706,9 @@ export default function Home() {
         <div className="geometric-shape" style={{top: '40%', left: '60%', width: '78px', height: '78px'}}></div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-2 relative z-10 space-y-2">
+      <div className="max-w-6xl mx-auto p-2 relative z-10 space-y-2 ml-20">
         {/* Gallery Section */}
-        <div className="bg-white/3 backdrop-blur-xl rounded-2xl border border-white/5 shadow-2xl overflow-hidden transition-all duration-500 hover:bg-white/5 hover:border-white/10">
+        <div id="gallery" className="bg-white/3 backdrop-blur-xl rounded-2xl border border-white/5 shadow-2xl overflow-hidden transition-all duration-500 hover:bg-white/5 hover:border-white/10">
           <div
             className="flex items-center justify-between p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
             onClick={() => setGalleryCollapsed(!galleryCollapsed)}
@@ -1966,7 +2058,7 @@ export default function Home() {
         </div>
 
         {/* Photo Generation Section */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+        <div id="photo" className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
           <div
             className="flex items-center justify-between p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
             onClick={() => setGenerateCollapsed(!generateCollapsed)}
@@ -2072,7 +2164,7 @@ export default function Home() {
         </div>
 
         {/* Video Generation Section */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+        <div id="video" className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
           <div
             className="flex items-center justify-between p-6 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
             onClick={() => setVideoCollapsed(!videoCollapsed)}
@@ -2266,7 +2358,7 @@ export default function Home() {
         </div>
 
         {/* Chat Section */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+        <div id="chat" className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
           <div
             className="flex items-center justify-between p-6 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
             onClick={() => setChatCollapsed(!chatCollapsed)}
@@ -2395,7 +2487,7 @@ export default function Home() {
         </div>
 
         {/* Voice Section */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+        <div id="voice" className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
           <div
             className="flex items-center justify-between p-6 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200"
             onClick={() => setVoiceCollapsed(!voiceCollapsed)}
@@ -2676,11 +2768,11 @@ export default function Home() {
           const currentItem = filteredGallery[carouselIndex];
           return filteredGallery.length > 0 ? (
             <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50" onClick={closeCarousel}>
-              <div className="relative max-w-6xl max-h-[95vh] w-full mx-6">
+              <div className="relative max-w-6xl max-h-[95vh] w-full mx-6 overflow-y-auto">
                 {/* Close button */}
                 <button
                   onClick={closeCarousel}
-                  className="absolute top-6 right-6 z-20 text-white hover:text-slate-300 transition-all duration-200 text-3xl p-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
+                  className="absolute top-4 right-4 z-20 text-white hover:text-slate-300 transition-all duration-200 text-2xl p-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
                 >
                   ✕
                 </button>
@@ -2694,7 +2786,7 @@ export default function Home() {
                         setCarouselIndex((prev) => (prev - 1 + filteredGallery.length) % filteredGallery.length);
                         setAutoPlay(false);
                       }}
-                      className="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-4xl z-20 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm"
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-3xl z-20 p-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
                     >
                       ‹
                     </button>
@@ -2704,7 +2796,7 @@ export default function Home() {
                         setCarouselIndex((prev) => (prev + 1) % filteredGallery.length);
                         setAutoPlay(false);
                       }}
-                      className="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-4xl z-20 p-3 rounded-full hover:bg-white/10 backdrop-blur-sm"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-slate-300 transition-all duration-200 text-3xl z-20 p-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
                     >
                       ›
                     </button>
@@ -2712,12 +2804,12 @@ export default function Home() {
                 )}
 
                 {/* Main media content */}
-                <div className="flex justify-center items-center py-16">
+                <div className="flex justify-center items-center py-8">
                   {currentItem.type === 'image' ? (
                     <img
                       src={currentItem.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(currentItem.filename)}&subfolder=${encodeURIComponent(currentItem.subfolder)}&type=output`}
                       alt={`Image ${carouselIndex + 1}`}
-                      className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
+                      className="max-w-full max-h-[55vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
                       onClick={(e) => e.stopPropagation()}
                     />
                   ) : (
@@ -2725,19 +2817,19 @@ export default function Home() {
                       src={currentItem.localPath || `${COMFYUI_URL}/view?filename=${encodeURIComponent(currentItem.filename)}&subfolder=${encodeURIComponent(currentItem.subfolder)}&type=output`}
                       controls
                       autoPlay
-                      className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
+                      className="max-w-full max-h-[55vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/10"
                       onClick={(e) => e.stopPropagation()}
                     />
                   )}
                 </div>
 
                 {/* Media info and controls */}
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-6 mb-6">
-                    <span className="text-lg text-slate-300 font-medium px-4 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
+                <div className="text-center px-4 pb-6">
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <span className="text-base text-slate-300 font-medium px-3 py-1 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
                       {carouselIndex + 1} of {filteredGallery.length}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       currentItem.type === 'image'
                         ? 'bg-blue-500/20 text-blue-300 border border-blue-400/30'
                         : 'bg-green-500/20 text-green-300 border border-green-400/30'
@@ -2748,20 +2840,20 @@ export default function Home() {
 
                   {/* Slideshow Controls */}
                   {filteredGallery.length > 1 && (
-                    <div className="flex flex-col items-center gap-4 mb-8">
+                    <div className="flex flex-col items-center gap-2 mb-4">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleAutoPlay();
                         }}
-                        className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm border bg-transparent hover:bg-white/5 border-white/20 text-white"
+                        className="px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 backdrop-blur-sm border bg-transparent hover:bg-white/5 border-white/20 text-white"
                       >
-                        {autoPlay ? '⏸️ Pause Slideshow' : '▶️ Start Slideshow'}
+                        {autoPlay ? '⏸️ Pause' : '▶️ Start'}
                       </button>
 
                       {/* Slideshow Speed Slider */}
-                      <div className="flex items-center gap-4 bg-white/5 rounded-xl px-6 py-4 backdrop-blur-sm border border-white/10">
-                        <span className="text-sm text-slate-300 font-medium">Speed:</span>
+                      <div className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-2 backdrop-blur-sm border border-white/10">
+                        <span className="text-xs text-slate-300 font-medium">Speed:</span>
                         <input
                           type="range"
                           min="1000"
@@ -2769,10 +2861,10 @@ export default function Home() {
                           step="1000"
                           value={slideshowInterval}
                           onChange={(e) => setSlideshowInterval(Number(e.target.value))}
-                          className="w-32 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider accent-blue-400"
+                          className="w-24 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer slider accent-blue-400"
                           onClick={(e) => e.stopPropagation()}
                         />
-                        <span className="text-sm text-white min-w-[50px] font-mono">
+                        <span className="text-xs text-white min-w-[35px] font-mono">
                           {(slideshowInterval / 1000).toFixed(1)}s
                         </span>
                       </div>
@@ -2780,7 +2872,7 @@ export default function Home() {
                   )}
 
                   {/* Action buttons */}
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -2796,7 +2888,7 @@ export default function Home() {
                           );
                         }
                       }}
-                      className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                      className="px-3 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-lg text-xs font-medium transition-all duration-200 backdrop-blur-sm"
                     >
                       📥 Download
                     </button>
@@ -2805,9 +2897,9 @@ export default function Home() {
                         e.stopPropagation();
                         copyPrompt(currentItem.prompt || '');
                       }}
-                      className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                      className="px-3 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-lg text-xs font-medium transition-all duration-200 backdrop-blur-sm"
                     >
-                      📋 Copy Prompt
+                      📋 Copy
                     </button>
                     <button
                       onClick={(e) => {
@@ -2825,7 +2917,7 @@ export default function Home() {
                           closeCarousel();
                         }
                       }}
-                      className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                      className="px-3 py-2 bg-transparent hover:bg-white/5 border border-white/20 rounded-lg text-xs font-medium transition-all duration-200 backdrop-blur-sm"
                     >
                       🗑️ Delete
                     </button>
@@ -2833,8 +2925,8 @@ export default function Home() {
 
                   {/* Prompt display */}
                   {currentItem.prompt && (
-                    <div className="mt-8 text-left bg-white/5 rounded-2xl p-6 max-w-3xl mx-auto backdrop-blur-sm border border-white/10 shadow-lg">
-                      <p className="text-slate-200 leading-relaxed">{currentItem.prompt}</p>
+                    <div className="mt-4 text-left bg-white/5 rounded-xl p-4 max-w-2xl mx-auto backdrop-blur-sm border border-white/10 shadow-lg">
+                      <p className="text-slate-200 leading-relaxed text-sm">{currentItem.prompt}</p>
                     </div>
                   )}
                 </div>
